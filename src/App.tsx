@@ -1,5 +1,5 @@
 import { useForm } from '@mantine/form';
-import { ActionIcon, Button, Divider, FileInput, Group, Modal, NumberInput, Stack, TextInput } from '@mantine/core';
+import { ActionIcon, Button, Divider, Text, FileInput, Group, Modal, NumberInput, Stack, TextInput } from '@mantine/core';
 import { createTheme, MantineProvider } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
 import { randomId, useDisclosure, useLocalStorage } from '@mantine/hooks';
@@ -12,6 +12,7 @@ import AccountsUpload from './components/AccountsUpload';
 import { useEffect } from 'react';
 import { Transaction } from './schema';
 import { downloadTransaction } from './utils/downloadObject';
+import { PhotoButton } from './components/PhotoButton';
 
 const theme = createTheme({});
 
@@ -63,7 +64,7 @@ function App() {
     }
 
     console.log('Valid transaction:', values);
-    if (values.receipt !== undefined) {
+    if (values.receiptUpload !== undefined || values.receiptPhoto !== undefined) {
       const fileReader = new FileReader();
       fileReader.addEventListener('load', () => {
         try {
@@ -90,6 +91,7 @@ function App() {
 
   const splitsComponents = form.getValues().splits.map((split, idx) => (
     <>
+      <Divider m={"md"}/>
       <Stack key={split.key} mt="xs">
         <TextInput
           placeholder="any description"
@@ -113,7 +115,6 @@ function App() {
           </ActionIcon>
         </Group>
       </Stack>
-      <Divider m={"md"}/>
     </>
   )
   )
@@ -134,37 +135,42 @@ function App() {
           {...form.getInputProps("date")}
         />
 
-        <Divider m={"md"} />
-
         {splitsComponents}
-
-        <FileInput
-          label="Photograph of receipt"
-          accept='image/png,image/jpeg,application/pdf'
-          key={form.key("receipt")}
-          {...form.getInputProps("receipt")}
-        />
+        <Button type='button' variant="outline" mt={"md"} onClick={() =>
+          {
+            const calculatedAmount = form.getValues().splits.reduce(
+                  (sum, s) => (sum - (s.amount || 0.0)),
+                  0.0)
+            form.insertListItem(
+              'splits',
+              {
+                account: '',
+                amount: calculatedAmount,
+                description: '',
+                key: randomId()}
+            );
+          }
+        }>
+          Add transaction split
+        </Button>
 
         <Divider m={"md"}/>
 
         <Stack>
-          <Button type='button' variant="outline" mt={"md"} onClick={() =>
-            {
-              const calculatedAmount = form.getValues().splits.reduce(
-                    (sum, s) => (sum - (s.amount || 0.0)),
-                    0.0)
-              form.insertListItem(
-                'splits',
-                {
-                  account: '',
-                  amount: calculatedAmount,
-                  description: '',
-                  key: randomId()}
-              );
-            }
-          }>
-            Add transaction split
-          </Button>
+          <Text size={"md"}>Upload or take a photo</Text>
+          <Group>
+            <FileInput
+              w={"80%"}
+              accept='image/png,image/jpeg,application/pdf'
+              key={form.key("receipt")}
+              {...form.getInputProps("receipt")}
+            />
+            <PhotoButton setPhoto={(file) => form.setFieldValue('receipt', file)} />
+          </Group>
+        </Stack>
+        <Divider m={"md"}/>
+
+        <Stack>
 
           <Button type="submit">Download formatted transaction</Button>
 
