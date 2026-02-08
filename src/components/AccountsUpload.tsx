@@ -9,8 +9,12 @@ interface AccountsUploadProps {
   onClose: () => void;
 }
 
+interface RawAccounts {
+  accountsFile?: File
+}
+
 const AccountsUpload = (props : AccountsUploadProps) => {
-  const [accounts, setAccounts] = useLocalStorage({
+  const [accounts, setAccounts] = useLocalStorage<string[]>({
     key: 'accounts',
     defaultValue: [],
     getInitialValueInEffect: false,
@@ -20,16 +24,17 @@ const AccountsUpload = (props : AccountsUploadProps) => {
     mode: "uncontrolled",
   });
 
-  const handleSubmit = (values) => {
+  const handleSubmit = (values : RawAccounts) => {
     const reader = new FileReader();
     reader.addEventListener("load", () => {
-      const rawContent = JSON.parse(reader.result);
+      const rawContent = JSON.parse(reader.result as string);
       console.log(rawContent);
       const validatedContent = Accounts.parse(rawContent)
       setAccounts(validatedContent.names);
       props.onClose();
     })
-    reader.readAsText(values.accountsFile);
+    if (values.accountsFile !== undefined)
+      reader.readAsText(values.accountsFile);
   }
 
   return <Paper>

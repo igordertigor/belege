@@ -5,12 +5,12 @@ import { useLocalStorage } from '@mantine/hooks';
 const AccountInput = (
   {placeholder, onBlur, onChange, onFocus} : {
     placeholder: string;
-    onBlur: () => void;
-    onChange: (val) => void;
-    onFocus: () => void;
+    onBlur?: any;
+    onChange?: any;
+    onFocus?: any;
   }
 ) => {
-  const [accounts, setAccounts] = useLocalStorage({
+  const [accounts] = useLocalStorage<string[]>({
     key: 'accounts',
     defaultValue: [],
     getInitialValueInEffect: false,

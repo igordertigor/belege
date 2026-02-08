@@ -16,6 +16,15 @@ import { PhotoButton } from './components/PhotoButton';
 
 const theme = createTheme({});
 
+
+interface RawTransaction {
+  username: string;
+  date: Date;
+  description?: string;
+  splits: {account: string, amount: number, description: string, key: string}[];
+  receipt?: File
+};
+
 function App() {
 
   const [username, setUsername] = useLocalStorage({
@@ -26,7 +35,7 @@ function App() {
 
   const [opened, { open, close }] = useDisclosure(false);
 
-  const [accounts, setAccounts] = useLocalStorage({
+  const [accounts] = useLocalStorage<string[]>({
     key: 'accounts',
     defaultValue: [],
     getInitialValueInEffect: false,
@@ -50,7 +59,7 @@ function App() {
     }
   });
 
-  const handleSubmit = form.onSubmit((values) => {
+  const handleSubmit = form.onSubmit((values : RawTransaction) => {
     form.validate();
     setUsername(values.username);
     const total = values.splits.reduce((sum, s) => sum + s.amount, 0);
@@ -64,7 +73,7 @@ function App() {
     }
 
     console.log('Valid transaction:', values);
-    if (values.receiptUpload !== undefined || values.receiptPhoto !== undefined) {
+    if (values.receipt !== undefined) {
       const fileReader = new FileReader();
       fileReader.addEventListener('load', () => {
         try {
@@ -77,7 +86,8 @@ function App() {
           console.error("Error validating transaction", e);
         }
       });
-      fileReader.readAsDataURL(values.receipt);
+      if (values.receipt)
+        fileReader.readAsDataURL(values.receipt);
     } else {
       try {
         const validated = Transaction.parse(values);
@@ -94,7 +104,7 @@ function App() {
       <Divider m={"md"}/>
       <Stack key={split.key} mt="xs">
         <TextInput
-          placeholder="any description"
+          placeholder="Optional split description"
           style={{ flex: 1}}
           key={form.key(`splits.${idx}.description`)}
           {...form.getInputProps(`splits.${idx}.description`)}
@@ -134,6 +144,12 @@ function App() {
           key={form.key("date")}
           {...form.getInputProps("date")}
         />
+        <TextInput
+          label="Summary of transaction"
+          placeholder="Optional description"
+          key={form.key("description")}
+          {...form.getInputProps("description")}
+        />
 
         {splitsComponents}
         <Button type='button' variant="outline" mt={"md"} onClick={() =>
@@ -157,7 +173,7 @@ function App() {
         <Divider m={"md"}/>
 
         <Stack>
-          <Text size={"md"}>Upload or take a photo</Text>
+          <Text size={"md"}>Upload or take a photo (optional)</Text>
           <Group>
             <FileInput
               w={"80%"}
