@@ -72,12 +72,12 @@ function App() {
       return;
     }
 
-    if (values.receipt !== undefined) {
+    if (values.receipt) {
       const fileReader = new FileReader();
       fileReader.addEventListener('load', () => {
         try {
           const validated = Transaction.parse(
-            {receipt: (fileReader.result as string), ...values}
+            {...values, receipt: (fileReader.result as string)}
           );
           downloadTransaction(validated);
           form.reset();

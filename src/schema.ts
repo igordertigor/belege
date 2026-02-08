@@ -11,7 +11,7 @@ export const Transaction = z.object({
   date: z.coerce.date(),
   description: z.optional(z.string()),
   splits: z.array(TransactionSplit),
-  receipt: z.optional(z.base64())
+  receipt: z.optional(z.string())
 })
 
 export const Accounts = z.object({
