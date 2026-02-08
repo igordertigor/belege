@@ -72,7 +72,6 @@ function App() {
       return;
     }
 
-    console.log('Valid transaction:', values);
     if (values.receipt !== undefined) {
       const fileReader = new FileReader();
       fileReader.addEventListener('load', () => {

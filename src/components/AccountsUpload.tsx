@@ -28,7 +28,6 @@ const AccountsUpload = (props : AccountsUploadProps) => {
     const reader = new FileReader();
     reader.addEventListener("load", () => {
       const rawContent = JSON.parse(reader.result as string);
-      console.log(rawContent);
       const validatedContent = Accounts.parse(rawContent)
       setAccounts(validatedContent.names);
       props.onClose();
