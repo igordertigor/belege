@@ -11,6 +11,7 @@ export const downloadTransaction = (transaction: Transaction_t ) => {
       files: [file],
       title: 'Transaction'
     }).catch((err) => {
+      console.log(`An error occurred ${err}. Continuing with file download.`)
       downloadFile(blob, filename);
     });
   } else {
