@@ -38,6 +38,7 @@ const AccountInput = (
       onOptionSubmit={(val) => {
         setValue(val);
         setSearch(val);
+        onChange?.(val);
         combobox.closeDropdown();
       }}
     >
